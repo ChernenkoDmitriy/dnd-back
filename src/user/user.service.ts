@@ -2,11 +2,11 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import * as moment from 'moment';
-import { comparePassword, hashPassword } from '../helpers/bcrypt/bcrypt';
 import { JwtService } from '../jwt/jwt.service';
 import { mail } from '../constaint/mail';
 import { EmailSubjectEnum, EmailTextEnum } from '../enums/mail.enum';
 import { MailService } from '../mail/mail.service';
+import { BcryptService } from '../bcrypt/bcrypt.service';
 
 @Injectable()
 export class UserService {
@@ -14,11 +14,12 @@ export class UserService {
     @InjectRepository(User) private userRepository,
     private jwtService: JwtService,
     private mailService: MailService,
+    private bcryptService: BcryptService,
   ) {}
 
   async create(data) {
     data.confirmation_send_at = moment().toDate();
-    data.password = await hashPassword(data.password);
+    data.password = await this.bcryptService.hashPassword(data.password);
     const user = this.userRepository.create(data);
     const result = await this.userRepository.save(user);
     const token = this.jwtService.generateToken(
@@ -26,15 +27,7 @@ export class UserService {
       process.env.JWT_CONF_KEY,
     );
 
-    await this.mailService.sendUserMail({
-      email: result.email,
-      token,
-      text: EmailTextEnum.CONF_EMAIL,
-      subject: EmailSubjectEnum.CONF_EMAIL,
-      path: mail.PATH_CONF,
-    });
-
-    return { data: { result, token } };
+    return { result, token };
   }
 
   async confirmEmail({ token }) {
@@ -87,7 +80,12 @@ export class UserService {
       throw new HttpException('Login or password is wrong', 403);
     }
 
-    if (!(await comparePassword(data.password, result.password))) {
+    if (
+      !(await this.bcryptService.comparePassword(
+        data.password,
+        result.password,
+      ))
+    ) {
       throw new HttpException('Login or password is wrong', 403);
     }
 
@@ -159,7 +157,7 @@ export class UserService {
       throw new HttpException('User with this email not found', 400);
     }
 
-    user.password = await hashPassword(password);
+    user.password = await this.bcryptService.hashPassword(password);
     await this.userRepository
       .createQueryBuilder()
       .update(User)

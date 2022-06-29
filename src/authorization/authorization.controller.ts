@@ -19,14 +19,14 @@ export class AuthorizationController {
 
   @Post('/sign-up')
   async singUp(@Body() dto: CreateUserDto, @Response() res: Res) {
-    const { data } = await this.userService.create(dto);
+    const { data } = await this.authorizationService.signUp(dto);
 
     return res.header('confirmation-token', data.token).json(data.result);
   }
 
   @Get('/confirm-email')
   async confirmEmail(@Query() dto: ConfirmEmailDto, @Response() res: Res) {
-    await this.userService.confirmEmail(dto);
+    await this.authorizationService.confirmEmail(dto);
 
     res.redirect(`${Redirect.CONF_EMAIL_SUCCESS_REDIRECT}`);
   }

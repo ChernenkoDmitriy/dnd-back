@@ -33,27 +33,27 @@ export class AuthorizationController {
 
   @Post('/sign-in')
   async singIn(@Body() dto: SignInDto, @Response() res: Res) {
-    const { data } = await this.userService.signIn(dto);
+    const { data } = await this.authorizationService.signIn(dto);
 
     return res.header('access-token', data.token).json(data.message);
   }
 
   @Post('/forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Response() res: Res) {
-    const { data, status } = await this.userService.forgotPassword(dto);
+    const { data, status } = await this.authorizationService.forgotPassword(dto);
 
     res.status(status).json(data);
   }
 
   @Get('/forgot-password')
   async forgotPassMail(@Query() dto: ConfirmEmailDto, @Response() res: Res) {
-    await this.userService.forgotPassMail(dto);
+    await this.authorizationService.forgotPassMail(dto);
 
     res.redirect(`${Redirect.FORGOT_PASSWORD_SUCCESS_REDIRECT}`);
   }
 
   @Post('change-password')
   async changePassword(@Body() dto: PasswordDto, @Headers() headers) {
-    return await this.userService.changePassword(dto, headers);
+    return await this.authorizationService.changePassword(dto, headers);
   }
 }

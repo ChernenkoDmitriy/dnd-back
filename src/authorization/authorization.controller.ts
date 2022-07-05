@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post, Query, Response } from '@nestjs/common';
 import { AuthorizationService } from './authorization.service';
 import { Response as Res } from 'express';
-import { UserService } from '../user/user.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { ConfirmEmailDto } from '../user/dto/confirm-email.dto';
 import { Redirect } from '../enums/redirect';
@@ -12,10 +11,7 @@ import { Headers } from '@nestjs/common/decorators/http/route-params.decorator';
 
 @Controller('/authorization')
 export class AuthorizationController {
-  constructor(
-    private authorizationService: AuthorizationService,
-    private userService: UserService,
-  ) {}
+  constructor(private authorizationService: AuthorizationService) {}
 
   @Post('/sign-up')
   async singUp(@Body() dto: CreateUserDto, @Response() res: Res) {
@@ -40,7 +36,9 @@ export class AuthorizationController {
 
   @Post('/forgot-password')
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Response() res: Res) {
-    const { data, status } = await this.authorizationService.forgotPassword(dto);
+    const { data, status } = await this.authorizationService.forgotPassword(
+      dto,
+    );
 
     res.status(status).json(data);
   }

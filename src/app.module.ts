@@ -8,6 +8,8 @@ import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
 import { BcryptModule } from './bcrypt/bcrypt.module';
+import { RoomModule } from './room/room.module';
+import { Room } from './room/room.entity';
 
 @Module({
   imports: [
@@ -20,13 +22,15 @@ import { BcryptModule } from './bcrypt/bcrypt.module';
       username: 'sluip',
       password: 's12122000',
       database: 'DND',
-      entities: [User],
+      entities: [User, Room],
+      logging: true,
       synchronize: true,
     }),
     UserModule,
     JwtModule,
     MailModule,
     BcryptModule,
+    RoomModule,
   ],
   controllers: [],
   providers: [],

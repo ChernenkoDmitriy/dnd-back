@@ -7,12 +7,11 @@ import { UserModule } from './user/user.module';
 import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { MailModule } from './mail/mail.module';
+import { BcryptModule } from './bcrypt/bcrypt.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: '.env',
-    }),
+    ConfigModule.forRoot({ envFilePath: `.${process.env.NODE_ENV}.env` }),
     AuthorizationModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -27,6 +26,7 @@ import { MailModule } from './mail/mail.module';
     UserModule,
     JwtModule,
     MailModule,
+    BcryptModule,
   ],
   controllers: [],
   providers: [],
